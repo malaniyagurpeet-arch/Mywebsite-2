@@ -1544,11 +1544,10 @@
 
 
 
-        <form
-            class="audit-form"
-            action="https://formspree.io/f/mjyvqjjl"
-            method="POST"
-        >
+       <form
+               class="audit-form"
+                id="audit-form"
+         >
 
 
             <div class="form-grid">
@@ -1701,6 +1700,10 @@
                 🔬 RUN MY BRAND AUDIT →
 
             </button>
+             <div
+              id="form-status"
+                class="form-status"
+                 ></div>
 
 
             <p class="form-note">
@@ -1821,7 +1824,110 @@
     </div>
 
 </footer>
+<script>
 
+const auditForm = document.getElementById("audit-form");
+
+const formStatus = document.getElementById("form-status");
+
+const submitButton = auditForm.querySelector(".form-submit");
+
+
+auditForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+
+    submitButton.disabled = true;
+
+    submitButton.innerText = "SUBMITTING...";
+
+    formStatus.innerText = "";
+
+    formStatus.className = "form-status";
+
+
+    const formData = new FormData(auditForm);
+
+
+    const data = {
+
+        name: formData.get("name"),
+
+        email: formData.get("email"),
+
+        company: formData.get("company"),
+
+        website: formData.get("website"),
+
+        service: formData.get("service"),
+
+        message: formData.get("message")
+
+    };
+
+
+    try {
+
+        const response = await fetch("/api/submit-lead", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+
+        });
+
+
+        const result = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                result.message || "Something went wrong."
+            );
+
+        }
+
+
+        formStatus.innerHTML = `
+            <strong>✓ REQUEST RECEIVED</strong>
+            <br>
+            Your brand audit request has been successfully submitted.
+        `;
+
+
+        formStatus.classList.add("success");
+
+
+        auditForm.reset();
+
+
+    } catch (error) {
+
+        formStatus.innerHTML = `
+            <strong>✕ SOMETHING WENT WRONG</strong>
+            <br>
+            ${error.message}
+        `;
+
+
+        formStatus.classList.add("error");
+
+    }
+
+
+    submitButton.disabled = false;
+
+    submitButton.innerText = "🔬 RUN MY BRAND AUDIT →";
+
+});
+
+</script>
 
 </body>
 
